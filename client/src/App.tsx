@@ -1,13 +1,11 @@
 import { useSocket } from './hooks/useSocket';
 import Lobby from './components/Lobby';
-
-// TODO: Replace placeholders with real components from Integrante 5
-// import Board from './components/Board';
-// import Scoreboard from './components/Scoreboard';
-// import LiveChart from './components/LiveChart';
+import Board from './components/Board';
+import Scoreboard from './components/Scoreboard';
+import LiveChart from './components/LiveChart';
 
 export default function App() {
-  const { socket, gameState, isConnected, joinGame } = useSocket();
+  const { socket, gameState, isConnected, joinGame, selectTile } = useSocket();
 
   const currentPlayer = gameState?.players.find(
     (p) => p.id === socket?.id
@@ -20,31 +18,53 @@ export default function App() {
   }
 
   return (
-    <div className="game-layout">
-      <header className="game-header">
-        <h1>Mahjong Colaborativo</h1>
-        <span className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-          {isConnected ? 'Connected' : 'Reconnecting...'}
-        </span>
+    <div className="cyber-layout">
+      {/* Header */}
+      <header className="cyber-header">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="cyber-header-logo">
+              🀄
+            </div>
+            <div>
+              <h1 className="cyber-header-title">Mahjong Multijugador</h1>
+              <p className="cyber-header-subtitle">
+                {isConnected ? 'Enlace Activo' : 'Reconectando...'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex flex-col items-end">
+              <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Jugador</span>
+              <span className="text-sm font-mono font-bold text-white">{currentPlayer?.name}</span>
+            </div>
+          </div>
+        </div>
       </header>
 
-      <main className="game-main">
-        {/* Board — Integrante 5 */}
-        <div className="board-placeholder">
-          Board goes here
+      <main className="max-w-7xl mx-auto p-8 space-y-6">
+        {/* Top Section: Board and Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-stretch">
+          {/* Left: Board */}
+          <div className="cyber-board-container h-full">
+            <Board
+              tiles={gameState?.tiles ?? []}
+              currentPlayerId={socket?.id ?? ''}
+              selectTile={selectTile}
+            />
+          </div>
+
+          {/* Right: Scoreboard */}
+          <div className="flex flex-col gap-6 h-full">
+            <Scoreboard players={gameState?.players ?? []} />
+          </div>
         </div>
 
-        <aside className="game-sidebar">
-          {/* Scoreboard — Integrante 5 */}
-          <div className="scoreboard-placeholder">
-            Scoreboard goes here
-          </div>
-
-          {/* LiveChart — Integrante 5 */}
-          <div className="chart-placeholder">
-            LiveChart goes here
-          </div>
-        </aside>
+        {/* Bottom Section: Score Trajectory */}
+        <LiveChart
+          scoreHistory={gameState?.scoreHistory ?? []}
+          players={gameState?.players ?? []}
+        />
       </main>
     </div>
   );

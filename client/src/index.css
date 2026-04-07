@@ -1,111 +1,166 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import "tailwindcss";
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+@layer components {
+  /* Global Layout */
+  .cyber-layout {
+    @apply min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-slate-100 font-sans;
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  /* Header */
+  .cyber-header {
+    @apply bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-4 sticky top-0 z-10 shadow-[0_0_20px_rgba(168,85,247,0.4)];
   }
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+  .cyber-header-logo {
+    @apply w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white text-2xl shadow-inner;
   }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+  .cyber-header-title {
+    @apply text-xl font-black tracking-widest text-white uppercase italic;
   }
-}
-p {
-  margin: 0;
-}
+  .cyber-header-subtitle {
+    @apply text-[10px] text-white/80 font-bold uppercase tracking-[0.2em];
+  }
+  .cyber-header-btn {
+    @apply bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/30 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95;
+  }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+  /* Board */
+  .cyber-board-container {
+    @apply bg-slate-900/80 rounded-2xl border border-cyan-500/30 shadow-[0_0_30px_rgba(34,211,238,0.15)] p-4 backdrop-blur-sm;
+  }
+  .cyber-board-grid {
+    @apply grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 p-6 max-w-7xl mx-auto justify-items-center;
+  }
+  .cyber-board-empty {
+    @apply flex items-center justify-center p-12 text-cyan-500/50 font-black uppercase tracking-[0.2em] animate-pulse;
+  }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  /* Tile */
+  .cyber-tile-container {
+    @apply relative w-20 h-28 transition-all duration-300;
+  }
+  .cyber-tile-clickable {
+    @apply cursor-pointer hover:scale-105 hover:shadow-[0_0_15px_rgba(34,211,238,0.8)];
+  }
+  .cyber-tile-not-clickable {
+    @apply cursor-not-allowed;
+  }
+  .cyber-tile-inner {
+    @apply relative w-full h-full transition-transform duration-300;
+  }
+  .cyber-tile-front {
+    @apply absolute inset-0 flex items-center justify-center rounded-xl shadow-lg bg-slate-800 border-2 transition-all duration-300;
+  }
+  .cyber-tile-front-normal {
+    @apply border-slate-600;
+  }
+  .cyber-tile-front-blocked {
+    @apply border-pink-500 bg-pink-900/20 animate-pulse shadow-[0_0_15px_rgba(236,72,153,0.7)];
+  }
+  .cyber-tile-container:hover .cyber-tile-front-normal {
+    @apply border-cyan-400;
+  }
+  .cyber-tile-back {
+    @apply absolute inset-0 flex items-center justify-center rounded-xl shadow-2xl border-2 transition-all duration-300 bg-slate-700 border-slate-500;
+  }
+  .cyber-tile-back-matched {
+    @apply bg-cyan-900/40 border-cyan-400 shadow-[0_0_25px_rgba(34,211,238,0.8)];
+  }
+  .cyber-tile-symbol {
+    @apply text-4xl font-black select-none drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] text-slate-200;
+  }
+  .cyber-tile-symbol-matched {
+    @apply text-cyan-300;
+  }
+  .cyber-tile-pattern {
+    @apply w-12 h-12 rounded-full border-2 border-cyan-500/20 flex items-center justify-center;
+  }
+  .cyber-tile-pattern-inner {
+    @apply w-6 h-6 rounded-full bg-cyan-500/10 shadow-[inset_0_0_10px_rgba(34,211,238,0.2)];
+  }
+
+  /* Scoreboard */
+  .cyber-scoreboard-container {
+    @apply w-full max-w-md bg-slate-900/90 rounded-2xl shadow-2xl border border-purple-500/30 overflow-hidden backdrop-blur-md;
+  }
+  .cyber-scoreboard-header {
+    @apply px-6 py-5 border-b border-purple-500/20 bg-purple-900/10;
+  }
+  .cyber-scoreboard-title {
+    @apply text-xs font-black text-purple-400 uppercase tracking-[0.4em];
+  }
+  .cyber-scoreboard-row {
+    @apply flex items-center justify-between px-6 py-5 transition-all duration-300;
+  }
+  .cyber-scoreboard-row-top {
+    @apply bg-gradient-to-r from-purple-900/30 to-cyan-900/30 border-l-4 border-cyan-400;
+  }
+  .cyber-scoreboard-row-normal {
+    @apply hover:bg-slate-800/50;
+  }
+  .cyber-scoreboard-rank {
+    @apply text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-lg border border-slate-700 text-slate-500;
+  }
+  .cyber-scoreboard-rank-top {
+    @apply bg-cyan-500/20 border-cyan-400 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.3)];
+  }
+  .cyber-scoreboard-name {
+    @apply text-sm font-bold tracking-wide text-slate-300;
+  }
+  .cyber-scoreboard-name-top {
+    @apply text-white;
+  }
+  .cyber-scoreboard-status-dot {
+    @apply w-1.5 h-1.5 rounded-full bg-slate-700;
+  }
+  .cyber-scoreboard-status-dot-active {
+    @apply bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,1)];
+  }
+  .cyber-scoreboard-status-text {
+    @apply text-[9px] uppercase tracking-widest text-slate-500 font-black;
+  }
+  .cyber-scoreboard-score {
+    @apply text-2xl font-black tabular-nums tracking-tighter text-slate-400;
+  }
+  .cyber-scoreboard-score-top {
+    @apply text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)];
+  }
+  .cyber-scoreboard-label {
+    @apply text-[9px] uppercase tracking-[0.2em] text-slate-600 font-black;
+  }
+
+  /* LiveChart */
+  .cyber-chart-container {
+    @apply w-full h-80 bg-slate-900/90 p-6 rounded-2xl shadow-2xl border border-cyan-500/30 backdrop-blur-md;
+  }
+  .cyber-chart-title {
+    @apply text-xs font-black text-cyan-400 uppercase tracking-[0.3em];
+  }
+  .cyber-chart-badge {
+    @apply text-[9px] bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded-full font-black uppercase tracking-widest;
+  }
+
+  /* Info Box */
+  .cyber-info-box {
+    @apply bg-purple-900/20 border border-purple-500/30 rounded-2xl p-5 flex items-start gap-4 shadow-[inset_0_0_20px_rgba(168,85,247,0.1)];
+  }
+  .cyber-info-icon {
+    @apply text-2xl drop-shadow-[0_0_8px_rgba(168,85,247,0.8)];
+  }
+  .cyber-info-text {
+    @apply text-sm text-purple-200 leading-relaxed font-medium;
+  }
+
+  /* Logs */
+  .cyber-logs-container {
+    @apply bg-slate-900/90 rounded-2xl p-6 border border-cyan-500/20 shadow-xl backdrop-blur-md;
+  }
+  .cyber-logs-title {
+    @apply text-xs font-black text-cyan-400 mb-6 uppercase tracking-[0.3em] border-b border-cyan-500/20 pb-2;
+  }
+  .cyber-logs-item {
+    @apply flex items-center gap-3 text-[11px];
+  }
+  .cyber-logs-dot {
+    @apply w-1.5 h-1.5 rounded-full;
+  }
 }

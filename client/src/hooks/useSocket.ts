@@ -3,6 +3,31 @@ import { io, Socket } from 'socket.io-client';
 import type { GameState } from '../types';
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
+const HISTORY_KEY = 'mahjong:history';
+
+interface GameRecord {
+  date: string;
+  durationSeconds: number;
+  players: { name: string; score: number }[];
+}
+
+function saveGameToHistory(state: GameState): void {
+  const durationSeconds = state.startTime
+    ? Math.floor((Date.now() - state.startTime) / 1000)
+    : 0;
+
+  const record: GameRecord = {
+    date: new Date().toLocaleDateString(),
+    durationSeconds,
+    players: state.players.map((p) => ({ name: p.name, score: p.score })),
+  };
+
+  const existing: GameRecord[] = JSON.parse(
+    localStorage.getItem(HISTORY_KEY) ?? '[]'
+  );
+
+  localStorage.setItem(HISTORY_KEY, JSON.stringify([...existing, record]));
+}
 
 interface UseSocketReturn {
   socket: Socket | null;
@@ -30,6 +55,9 @@ export function useSocket(): UseSocketReturn {
     });
 
     socket.on('game:state', (state: GameState) => {
+      if (state.isGameOver) {
+        saveGameToHistory(state);
+      }
       setGameState(state);
     });
 
@@ -39,11 +67,11 @@ export function useSocket(): UseSocketReturn {
   }, []);
 
   const joinGame = (name: string) => {
-    socketRef.current?.emit('player:join', { name });
+    socketRef.current?.emit('player:join', name);
   };
 
   const selectTile = (tileId: string) => {
-    socketRef.current?.emit('tile:select', { tileId });
+    socketRef.current?.emit('tile:select', tileId);
   };
 
   return {
