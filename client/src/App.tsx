@@ -1,121 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useSocket } from './hooks/useSocket';
+import Lobby from './components/Lobby';
+import Board from './components/Board';
+import Scoreboard from './components/Scoreboard';
+import LiveChart from './components/LiveChart';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const { socket, gameState, isConnected, joinGame, selectTile } = useSocket();
+
+  const currentPlayer = gameState?.players.find(
+    (p) => p.id === socket?.id
+  );
+
+  const hasJoined = currentPlayer !== undefined;
+
+  if (!hasJoined) {
+    return <Lobby joinGame={joinGame} />;
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="cyber-layout">
+      {/* Header */}
+      <header className="cyber-header">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="cyber-header-logo">
+              🀄
+            </div>
+            <div>
+              <h1 className="cyber-header-title">Mahjong Multijugador</h1>
+              <p className="cyber-header-subtitle">
+                {isConnected ? 'Enlace Activo' : 'Reconectando...'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex flex-col items-end">
+              <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Jugador</span>
+              <span className="text-sm font-mono font-bold text-white">{currentPlayer?.name}</span>
+            </div>
+          </div>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
+      <main className="max-w-7xl mx-auto p-8 space-y-6">
+        {/* Top Section: Board and Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-stretch">
+          {/* Left: Board */}
+          <div className="cyber-board-container h-full">
+            <Board
+              tiles={gameState?.tiles ?? []}
+              currentPlayerId={socket?.id ?? ''}
+              selectTile={selectTile}
+            />
+          </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          {/* Right: Scoreboard */}
+          <div className="flex flex-col gap-6 h-full">
+            <Scoreboard players={gameState?.players ?? []} />
+          </div>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* Bottom Section: Score Trajectory */}
+        <LiveChart
+          scoreHistory={gameState?.scoreHistory ?? []}
+          players={gameState?.players ?? []}
+        />
+      </main>
+    </div>
+  );
 }
-
-export default App
