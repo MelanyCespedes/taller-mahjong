@@ -2,8 +2,9 @@
 set -e
 
 echo "Installing dependencies..."
-npm ci --prefix server --include=dev
-npm ci --prefix client --include=dev
+npm config set omit=''
+npm ci --prefix server
+npm ci --prefix client
 
 echo "Building application..."
 npm run build
