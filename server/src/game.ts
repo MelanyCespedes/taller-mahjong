@@ -144,7 +144,7 @@ export function checkMatch(
 
   const snapshot: ScoreSnapshot = {
     timestamp: Date.now(),
-    scores: Object.fromEntries(players.map(p => [p.name, p.score])),
+    scores: Object.fromEntries(players.map(p => [p.id, p.score])),
   };
 
   const isGameOver = tiles.every(t => t.isMatched);
