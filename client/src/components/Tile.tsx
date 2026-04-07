@@ -1,37 +1,36 @@
 import React, { memo } from 'react';
 import { Tile } from '../types';
 
-/**
- * Props for the Tile component.
- */
 export interface TileProps {
   tile: Tile;
   currentPlayerId: string;
+  playerColors: Record<string, string>;
   onSelect: (tileId: string) => void;
 }
 
-/**
- * A Tile component for a multiplayer Mahjong-style game.
- * Features smooth 3D flip animations and real-time state handling.
- */
-const TileComponent: React.FC<TileProps> = ({ tile, currentPlayerId, onSelect }) => {
-  // A tile is blocked if it's locked by someone else
+const TileComponent: React.FC<TileProps> = ({ tile, currentPlayerId, playerColors, onSelect }) => {
   const isBlocked = !!tile.lockedBy && tile.lockedBy !== currentPlayerId;
-  
-  // A tile is clickable only if it's not already matched and not blocked by another player
   const isClickable = !tile.isMatched && !isBlocked;
-
-  // The tile should show its face if it's flipped or already matched
   const isFaceUp = tile.isFlipped || tile.isMatched;
 
+  // Color of whoever locked or matched this tile
+  const lockedColor = tile.lockedBy ? (playerColors[tile.lockedBy] ?? null) : null;
+  const matchedColor = tile.matchedBy ? (playerColors[tile.matchedBy] ?? null) : null;
+
+  const frontStyle: React.CSSProperties = lockedColor
+    ? { borderColor: lockedColor, boxShadow: `0 0 15px ${lockedColor}99` }
+    : {};
+
+  const backStyle: React.CSSProperties = matchedColor
+    ? { borderColor: matchedColor, boxShadow: `0 0 25px ${matchedColor}99` }
+    : {};
+
   const handleClick = () => {
-    if (isClickable) {
-      onSelect(tile.id);
-    }
+    if (isClickable) onSelect(tile.id);
   };
 
   return (
-    <div 
+    <div
       className={`cyber-tile-container ${isClickable ? 'cyber-tile-clickable' : 'cyber-tile-not-clickable'}`}
       onClick={handleClick}
       aria-label={`Ficha ${tile.symbol}`}
@@ -39,39 +38,29 @@ const TileComponent: React.FC<TileProps> = ({ tile, currentPlayerId, onSelect })
       tabIndex={isClickable ? 0 : -1}
       style={{ perspective: '1000px' }}
     >
-      <div 
+      <div
         className="cyber-tile-inner"
-        style={{ 
+        style={{
           transformStyle: 'preserve-3d',
-          transform: isFaceUp ? 'rotateY(180deg)' : 'rotateY(0deg)'
+          transform: isFaceUp ? 'rotateY(180deg)' : 'rotateY(0deg)',
         }}
       >
-        {/* Front Side (Face Down / Hidden) */}
-        <div 
-          className={`cyber-tile-front ${
-            isBlocked ? 'cyber-tile-front-blocked' : 'cyber-tile-front-normal'
-          }`}
-          style={{ backfaceVisibility: 'hidden' }}
+        {/* Front (face-down) */}
+        <div
+          className={`cyber-tile-front ${isBlocked ? 'animate-pulse' : 'cyber-tile-front-normal'}`}
+          style={{ backfaceVisibility: 'hidden', ...frontStyle }}
         >
-          {/* Decorative pattern for the back of the tile */}
           <div className="cyber-tile-pattern">
             <div className="cyber-tile-pattern-inner" />
           </div>
         </div>
 
-        {/* Back Side (Face Up / Symbol) */}
-        <div 
-          className={`cyber-tile-back ${
-            tile.isMatched ? 'cyber-tile-back-matched' : ''
-          }`}
-          style={{ 
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
-          }}
+        {/* Back (face-up) */}
+        <div
+          className={`cyber-tile-back ${tile.isMatched ? 'cyber-tile-back-matched' : ''}`}
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', ...backStyle }}
         >
-          <span className={`cyber-tile-symbol ${
-            tile.isMatched ? 'cyber-tile-symbol-matched' : ''
-          }`}>
+          <span className={`cyber-tile-symbol ${tile.isMatched ? 'cyber-tile-symbol-matched' : ''}`}>
             {tile.symbol}
           </span>
         </div>
@@ -80,5 +69,4 @@ const TileComponent: React.FC<TileProps> = ({ tile, currentPlayerId, onSelect })
   );
 };
 
-// Wrap with React.memo for performance optimization
 export default memo(TileComponent);

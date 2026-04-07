@@ -33,14 +33,19 @@ interface UseSocketReturn {
   socket: Socket | null;
   gameState: GameState | null;
   isConnected: boolean;
+  lastMatchResult: { isMatch: boolean; seq: number } | null;
+  gameFull: boolean;
   joinGame: (name: string) => void;
   selectTile: (tileId: string) => void;
+  restartGame: () => void;
 }
 
 export function useSocket(): UseSocketReturn {
   const socketRef = useRef<Socket | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [lastMatchResult, setLastMatchResult] = useState<{ isMatch: boolean; seq: number } | null>(null);
+  const [gameFull, setGameFull] = useState(false);
 
   useEffect(() => {
     const socket = io(SERVER_URL);
@@ -61,6 +66,14 @@ export function useSocket(): UseSocketReturn {
       setGameState(state);
     });
 
+    socket.on('match:result', ({ isMatch }: { isMatch: boolean }) => {
+      setLastMatchResult(prev => ({ isMatch, seq: (prev?.seq ?? 0) + 1 }));
+    });
+
+    socket.on('game:full', () => {
+      setGameFull(true);
+    });
+
     return () => {
       socket.disconnect();
     };
@@ -74,11 +87,18 @@ export function useSocket(): UseSocketReturn {
     socketRef.current?.emit('tile:select', tileId);
   };
 
+  const restartGame = () => {
+    socketRef.current?.emit('game:restart');
+  };
+
   return {
     socket: socketRef.current,
     gameState,
     isConnected,
+    lastMatchResult,
+    gameFull,
     joinGame,
     selectTile,
+    restartGame,
   };
 }

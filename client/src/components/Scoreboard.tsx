@@ -6,6 +6,7 @@ import { Player } from '../types';
  */
 interface ScoreboardProps {
   players: Player[];
+  playerColors: Record<string, string>;
   className?: string;
 }
 
@@ -13,7 +14,7 @@ interface ScoreboardProps {
  * A Scoreboard component for a multiplayer Mahjong-style game.
  * Displays a sorted list of players with their scores and connection status.
  */
-const Scoreboard: React.FC<ScoreboardProps> = ({ players, className = "" }) => {
+const Scoreboard: React.FC<ScoreboardProps> = ({ players, playerColors, className = "" }) => {
   // Handle the case where there are no players
   if (players.length === 0) {
     return (
@@ -53,9 +54,18 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ players, className = "" }) => {
                 </span>
                 
                 <div className="flex flex-col">
-                  <span className={`cyber-scoreboard-name ${isTopPlayer ? 'cyber-scoreboard-name-top' : ''}`}>
-                    {player.name}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{
+                        backgroundColor: playerColors[player.id] ?? '#475569',
+                        boxShadow: `0 0 6px ${playerColors[player.id] ?? '#475569'}`,
+                      }}
+                    />
+                    <span className={`cyber-scoreboard-name ${isTopPlayer ? 'cyber-scoreboard-name-top' : ''}`}>
+                      {player.name}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-2">
                     <span 
                       className={`cyber-scoreboard-status-dot ${

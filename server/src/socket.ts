@@ -12,6 +12,11 @@ export function setupSocket(io: SocketIOServer): void {
 
     
     socket.on('player:join', (name: string) => {
+      const isReconnecting = gameState.players.some(p => p.name === name && !p.isConnected);
+      if (!isReconnecting && gameState.players.length >= 5) {
+        socket.emit('game:full');
+        return;
+      }
       gameState = addPlayer(gameState, socket.id, name);
       io.emit('game:state', gameState);
       console.log(`Player joined: ${name} (${socket.id})`);
@@ -47,6 +52,12 @@ export function setupSocket(io: SocketIOServer): void {
     });
 
     
+    socket.on('game:restart', () => {
+      gameState = createGame(15);
+      io.emit('game:state', gameState);
+      console.log(`Game restarted by ${socket.id}`);
+    });
+
     socket.on('disconnect', () => {
       gameState = removePlayer(gameState, socket.id);
       io.emit('game:state', gameState);

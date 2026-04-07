@@ -7,6 +7,11 @@ function setupSocket(io) {
     io.on('connection', (socket) => {
         console.log(`Client connected: ${socket.id}`);
         socket.on('player:join', (name) => {
+            const isReconnecting = gameState.players.some(p => p.name === name && !p.isConnected);
+            if (!isReconnecting && gameState.players.length >= 5) {
+                socket.emit('game:full');
+                return;
+            }
             gameState = (0, game_1.addPlayer)(gameState, socket.id, name);
             io.emit('game:state', gameState);
             console.log(`Player joined: ${name} (${socket.id})`);
@@ -27,6 +32,11 @@ function setupSocket(io) {
                     console.log(`Match result: ${isMatch ? 'HIT' : 'MISS'} by ${socket.id}`);
                 }, 1000);
             }
+        });
+        socket.on('game:restart', () => {
+            gameState = (0, game_1.createGame)(15);
+            io.emit('game:state', gameState);
+            console.log(`Game restarted by ${socket.id}`);
         });
         socket.on('disconnect', () => {
             gameState = (0, game_1.removePlayer)(gameState, socket.id);

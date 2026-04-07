@@ -23,8 +23,8 @@ export function createGame(pairCount: number): GameState {
   const selectedSymbols = SYMBOLS.slice(0, pairCount);
 
   const rawTiles: Tile[] = selectedSymbols.flatMap((symbol, idx) => [
-    { id: `tile-${idx}-a`, symbol, isFlipped: false, isMatched: false, lockedBy: null },
-    { id: `tile-${idx}-b`, symbol, isFlipped: false, isMatched: false, lockedBy: null },
+    { id: `tile-${idx}-a`, symbol, isFlipped: false, isMatched: false, lockedBy: null, matchedBy: null },
+    { id: `tile-${idx}-b`, symbol, isFlipped: false, isMatched: false, lockedBy: null, matchedBy: null },
   ]);
 
   const tiles = shuffle(rawTiles);
@@ -39,8 +39,9 @@ export function createGame(pairCount: number): GameState {
 }
 
 export function addPlayer(state: GameState, id: string, name: string): GameState {
-  const existing = state.players.find(p => p.id === id);
-  if (existing) {
+  // Same socket reconnected (edge case)
+  const existingById = state.players.find(p => p.id === id);
+  if (existingById) {
     return {
       ...state,
       players: state.players.map(p =>
@@ -49,8 +50,19 @@ export function addPlayer(state: GameState, id: string, name: string): GameState
     };
   }
 
-  const newPlayer: Player = { id, name, score: 0, isConnected: true };
+  // Player reloaded: new socket.id but same name — restore their session
+  const disconnectedByName = state.players.find(p => p.name === name && !p.isConnected);
+  if (disconnectedByName) {
+    return {
+      ...state,
+      players: state.players.map(p =>
+        p.name === name && !p.isConnected ? { ...p, id, isConnected: true } : p
+      ),
+    };
+  }
 
+  // Brand new player
+  const newPlayer: Player = { id, name, score: 0, isConnected: true };
   const startTime = state.startTime ?? Date.now();
 
   return {
@@ -126,7 +138,7 @@ export function checkMatch(
   if (isMatch) {
     tiles = state.tiles.map(t =>
       t.id === t1Id || t.id === t2Id
-        ? { ...t, isMatched: true, lockedBy: null, isFlipped: true }
+        ? { ...t, isMatched: true, lockedBy: null, isFlipped: true, matchedBy: playerId }
         : t
     );
 

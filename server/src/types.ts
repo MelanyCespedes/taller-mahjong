@@ -4,6 +4,7 @@ export interface Tile {
   isFlipped: boolean;
   isMatched: boolean;
   lockedBy: string | null;
+  matchedBy: string | null;
 }
 
 export interface Player {

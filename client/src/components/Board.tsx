@@ -2,20 +2,14 @@ import React from 'react';
 import Tile from './Tile';
 import { Tile as TileType } from '../types';
 
-/**
- * Props for the Board component.
- */
 interface BoardProps {
   tiles: TileType[];
   currentPlayerId: string;
+  playerColors: Record<string, string>;
   selectTile: (tileId: string) => void;
 }
 
-/**
- * A Board component for a multiplayer Mahjong-style game.
- * Renders a grid of tiles and handles tile selection.
- */
-const Board: React.FC<BoardProps> = ({ tiles, currentPlayerId, selectTile }) => {
+const Board: React.FC<BoardProps> = ({ tiles, currentPlayerId, playerColors, selectTile }) => {
   if (tiles.length === 0) {
     return (
       <div className="cyber-board-empty">
@@ -31,6 +25,7 @@ const Board: React.FC<BoardProps> = ({ tiles, currentPlayerId, selectTile }) => 
           key={tile.id}
           tile={tile}
           currentPlayerId={currentPlayerId}
+          playerColors={playerColors}
           onSelect={selectTile}
         />
       ))}
