@@ -74,13 +74,15 @@ taller-mahjong/
 │       ├── App.tsx            # Componente raíz, orquesta el layout
 │       ├── types.ts           # Contratos de tipos (espejo de server/types.ts)
 │       ├── hooks/
-│       │   └── useSocket.ts   # Lógica de conexión, estado del juego, historial local
+│       │   ├── useSocket.ts   # Lógica de conexión, estado del juego, historial local
+│       │   └── useSounds.ts   # Efectos de sonido con Web Audio API
 │       └── components/
 │           ├── Lobby.tsx      # Pantalla de entrada con nombre de jugador
 │           ├── Board.tsx      # Grid de fichas del tablero
-│           ├── Tile.tsx       # Ficha individual con animación 3D flip
+│           ├── Tile.tsx       # Ficha individual con animación 3D flip y color de jugador
 │           ├── Scoreboard.tsx # Clasificación de jugadores en tiempo real
-│           └── LiveChart.tsx  # Gráfico de trayectoria de puntajes (Recharts)
+│           ├── LiveChart.tsx  # Gráfico de trayectoria de puntajes (Recharts)
+│           └── Victory.tsx    # Pantalla de victoria con animaciones y botón de reinicio
 │
 └── server/                    # Servidor Node.js
     └── src/
@@ -112,9 +114,13 @@ El repositorio no contiene atribuciones explícitas por archivo, por lo que se d
 - **Bloqueo de fichas**: una ficha seleccionada por un jugador queda bloqueada (no clickeable) para los demás hasta que se resuelva el par.
 - **Sistema de puntaje**: cada par encontrado suma 1 punto al jugador que lo completó. Los puntajes se actualizan en tiempo real en el `Scoreboard`.
 - **Historial de puntajes**: cada verificación de par genera un `ScoreSnapshot` con timestamp, visualizado en el `LiveChart` como líneas por jugador.
-- **Detección de fin de juego**: cuando todas las fichas están emparejadas, el estado `isGameOver` se activa y la partida se guarda en `localStorage`.
+- **Pantalla de victoria**: al terminar la partida se muestra una pantalla animada con el campeón, clasificación final y botón de reinicio.
+- **Reinicio de partida**: cualquier jugador puede reiniciar el juego desde la pantalla de victoria; el servidor emite `game:restart` y genera un nuevo estado limpio.
+- **Colores por jugador**: cada jugador tiene un color único asignado, visible en las fichas que emparejó y en el `Scoreboard`.
+- **Feedback de sonido**: el hook `useSounds` usa la Web Audio API para reproducir tonos distintos al voltear una ficha, encontrar un par, fallar un intento y al ganar (fanfarria de 4 notas).
+- **Límite de sala**: el servidor rechaza conexiones cuando ya hay 5 jugadores activos, emitiendo `game:full`. El Lobby muestra un mensaje de sala llena.
+- **Reconexión por nombre**: si un jugador se desconecta y vuelve con el mismo nombre, el servidor restaura su sesión y puntaje en lugar de crear un jugador nuevo.
 - **Historial local**: el hook `useSocket` persiste un registro de cada partida completada (`fecha`, `duración`, `jugadores y puntajes`) en `localStorage` bajo la clave `mahjong:history`.
-- **Reconexión de estado**: al re-unirse con el mismo `socket.id`, el jugador recupera su entrada en el estado (marcado como `isConnected: true`).
 - **Animación 3D de fichas**: las fichas tienen efecto flip CSS 3D (`rotateY`) al voltearse.
 
 ---
@@ -212,7 +218,7 @@ VITE_SERVER_URL=https://taller-mahjong-production.up.railway.app
 - **Una sola sala de juego**: el estado del juego es global y único para todos los jugadores conectados. No existe soporte para múltiples salas o partidas simultáneas separadas.
 
 
-- **Sin autenticación ni control de acceso**: cualquier usuario que conozca la URL del backend puede unirse a la partida.
+- **Control de acceso básico**: la sala tiene límite de 5 jugadores, pero no hay autenticación; cualquier usuario con la URL puede unirse mientras haya espacio.
 
 ---
 
@@ -220,4 +226,4 @@ VITE_SERVER_URL=https://taller-mahjong-production.up.railway.app
 
 El sistema implementa correctamente un juego de memoria multijugador en tiempo real con arquitectura cliente-servidor desacoplada. La lógica del juego está bien separada de la capa de red, el frontend sincroniza reactivamente el estado y el despliegue en Vercel + Railway es funcional.
 
-El proyecto está en un estado **funcional y demostrable**, con las funcionalidades core operativas. Las principales áreas de mejora para una versión productiva son: soporte de múltiples salas, persistencia de estado en base de datos, y uso correcto de la variable `PORT`.
+El proyecto está en un estado **funcional y completo** para su propósito académico: juego en tiempo real, sincronización de estado, feedback visual y sonoro, pantalla de victoria, reinicio de partida y reconexión por nombre. Las principales áreas de mejora para una versión productiva serían: soporte de múltiples salas, persistencia de estado en base de datos, y uso correcto de la variable `PORT`.
