@@ -24,34 +24,8 @@ interface LiveChartProps {
  * Visualizes player score history over time using Recharts.
  */
 const LiveChart: React.FC<LiveChartProps> = ({ scoreHistory, players }) => {
-  // Mock data for preview purposes
-  const mockPlayers: Player[] = [
-    { id: "1", name: "Jugador A", score: 2, isConnected: true },
-    { id: "2", name: "Jugador B", score: 1, isConnected: true }
-  ];
-
-  const mockHistory: ScoreSnapshot[] = [
-    {
-      timestamp: Date.now() - 3000,
-      scores: { "1": 0, "2": 0 }
-    },
-    {
-      timestamp: Date.now() - 2000,
-      scores: { "1": 1, "2": 0 }
-    },
-    {
-      timestamp: Date.now() - 1000,
-      scores: { "1": 1, "2": 1 }
-    },
-    {
-      timestamp: Date.now(),
-      scores: { "1": 2, "2": 1 }
-    }
-  ];
-
-  // Use props if available, otherwise fallback to mock data
-  const effectivePlayers = players?.length ? players : mockPlayers;
-  const effectiveHistory = scoreHistory?.length ? scoreHistory : mockHistory;
+  const effectivePlayers = players ?? [];
+  const effectiveHistory = scoreHistory ?? [];
 
   // Transform effectiveHistory into chart data
   const data = effectiveHistory.map(snapshot => ({
@@ -75,11 +49,6 @@ const LiveChart: React.FC<LiveChartProps> = ({ scoreHistory, players }) => {
     <div className="cyber-chart-container">
       <div className="flex items-center justify-between mb-6 px-2">
         <h3 className="cyber-chart-title">Trayectoria de Puntuación</h3>
-        {(!scoreHistory?.length && !players?.length) && (
-          <span className="cyber-chart-badge">
-            Simulación
-          </span>
-        )}
       </div>
       <div className="w-full h-56">
         <ResponsiveContainer width="100%" height="100%">
