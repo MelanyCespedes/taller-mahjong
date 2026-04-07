@@ -2,8 +2,8 @@
 set -e
 
 echo "Installing dependencies..."
-npm ci --prefix server
-npm ci --prefix client
+npm ci --prefix server --include=dev
+npm ci --prefix client --include=dev
 
 echo "Building application..."
 npm run build
