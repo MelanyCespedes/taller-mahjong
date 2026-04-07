@@ -66,8 +66,7 @@ const LiveChart: React.FC<LiveChartProps> = ({ scoreHistory, players }) => {
    * Formats the timestamp for the X-axis.
    * Assuming timestamp is in milliseconds.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const formatTime = (time: any) => {
+  const formatTime = (time: number) => {
     const date = new Date(Number(time));
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
   };
@@ -106,7 +105,7 @@ const LiveChart: React.FC<LiveChartProps> = ({ scoreHistory, players }) => {
               tickFormatter={(value) => `${value}`}
             />
             <Tooltip 
-              labelFormatter={formatTime}
+              labelFormatter={(v) => formatTime(Number(v))}
               contentStyle={{ 
                 backgroundColor: '#0f172a', 
                 borderRadius: '12px', 
